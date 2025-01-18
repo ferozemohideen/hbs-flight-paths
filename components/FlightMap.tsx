@@ -117,7 +117,8 @@ export default function FlightMap({ flightData }: FlightMapProps) {
   const longestFlight = Math.round(calculateLongestFlight(allCities));
   const continentsVisited = calculateContinentsVisited(allCities);
   const totalFlights = calculateTotalFlights(flightData);
-  const averageFlightDistance = Math.round(totalDistance / totalFlights);
+  const averageFlightDistance =
+    totalFlights > 0 ? Math.round(totalDistance / totalFlights) : 0;
 
   return (
     <div className="flex flex-col items-center py-12">
@@ -206,7 +207,9 @@ export default function FlightMap({ flightData }: FlightMapProps) {
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
               <div className="text-2xl font-bold text-white mb-1">
-                {averageFlightDistance.toLocaleString()}
+                {averageFlightDistance > 0
+                  ? averageFlightDistance.toLocaleString()
+                  : "-"}
               </div>
               <div className="text-white/80 text-sm">Avg Flight</div>
             </div>

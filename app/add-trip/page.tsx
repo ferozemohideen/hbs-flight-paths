@@ -37,7 +37,12 @@ export default function AddTrip() {
   );
 
   const addLocation = (location: Location) => {
-    setLocations([...locations, location]);
+    console.log("Adding location:", location);
+    setLocations((prev) => {
+      const newLocations = [...prev, location];
+      console.log("New locations array:", newLocations);
+      return newLocations;
+    });
   };
 
   const removeLocation = (index: number) => {
@@ -61,14 +66,17 @@ export default function AddTrip() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("Form submission started");
     e.preventDefault();
 
-    if (locations.length < 2) {
-      alert("Please add at least two locations");
+    if (locations.length < 1) {
+      alert("Please add at least one destination");
       return;
     }
 
     try {
+      console.log("Submitting trip:", locations);
+
       const response = await fetch("/api/trips", {
         method: "POST",
         headers: {
@@ -77,12 +85,23 @@ export default function AddTrip() {
         body: JSON.stringify({ route: locations }),
       });
 
-      if (!response.ok) throw new Error("Failed to save trip");
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to save trip");
+      }
+
+      const data = await response.json();
+      console.log("Response:", data);
 
       router.push("/");
+      router.refresh();
     } catch (error) {
       console.error("Failed to save trip:", error);
-      alert("Failed to save trip. Please try again.");
+      alert(
+        `Failed to save trip: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
   };
 
@@ -94,7 +113,7 @@ export default function AddTrip() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             <label className="block text-white text-sm font-medium mb-2">
-              Add Locations
+              Add Destination
             </label>
             <PlacesAutocomplete onSelect={addLocation} />
           </div>
@@ -126,8 +145,9 @@ export default function AddTrip() {
 
           <button
             type="submit"
-            className="w-full bg-white text-[#a41034] py-2 px-4 rounded-md font-medium hover:bg-white/90 transition-colors"
-            disabled={locations.length < 2}
+            className="w-full bg-white text-[#a41034] py-2 px-4 rounded-md font-medium hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={locations.length < 1}
+            onClick={() => console.log("Button clicked", locations.length)}
           >
             Save Trip
           </button>

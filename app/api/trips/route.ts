@@ -23,15 +23,22 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    console.log("Received POST request"); // Debug log
+
     const data = await request.json();
+    console.log("Request data:", data); // Debug log
+
     // Add Boston as the starting point for every route
     const routeWithBoston = [BOSTON_LOCATION, ...data.route];
+    console.log("Route with Boston:", routeWithBoston); // Debug log
+
     await addTrip(routeWithBoston);
+    
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to save trip:", error);
     return NextResponse.json(
-      { error: "Failed to save trip" },
+      { error: "Failed to save trip", message: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

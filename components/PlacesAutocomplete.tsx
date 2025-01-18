@@ -43,6 +43,23 @@ export default function PlacesAutocomplete({
     };
   }, [onSelect]);
 
+  const handlePlaceSelect = () => {
+    if (!autocompleteRef.current) return;
+
+    const place = autocompleteRef.current.getPlace();
+    console.log("Selected place:", place);
+
+    if (place.geometry?.location) {
+      const location = {
+        name: place.name || "",
+        lat: place.geometry.location.lat(),
+        lon: place.geometry.location.lng(),
+      };
+      console.log("Calling onSelect with:", location);
+      onSelect(location);
+    }
+  };
+
   return (
     <input
       ref={inputRef}

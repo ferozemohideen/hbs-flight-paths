@@ -73,15 +73,27 @@ export async function getAllTrips(): Promise<Trip[]> {
 }
 
 export async function addTrip(route: TripLocation[]) {
-  const sheet = await getSheet();
-  const tripId = Date.now().toString(); // Use timestamp as trip ID
-  
-  const rows = route.map(location => ({
-    tripId,
-    name: location.name,
-    lat: location.lat.toString(),
-    lon: location.lon.toString(),
-  }));
-  
-  await sheet.addRows(rows);
+  try {
+    console.log("Getting sheet..."); // Debug log
+    const sheet = await getSheet();
+    
+    console.log("Creating trip ID..."); // Debug log
+    const tripId = Date.now().toString(); // Use timestamp as trip ID
+    
+    console.log("Preparing rows..."); // Debug log
+    const rows = route.map(location => ({
+      tripId,
+      name: location.name,
+      lat: location.lat.toString(),
+      lon: location.lon.toString(),
+    }));
+    
+    console.log("Adding rows:", rows); // Debug log
+    await sheet.addRows(rows);
+    
+    console.log("Trip added successfully"); // Debug log
+  } catch (error) {
+    console.error("Error in addTrip:", error);
+    throw error; // Re-throw to be handled by the API route
+  }
 } 
