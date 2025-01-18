@@ -93,7 +93,7 @@ function calculateTotalFlights(routes: FlightDatum[]) {
   return routes.reduce((total, route) => total + route.route.length - 1, 0);
 }
 
-const projection = geoEqualEarth().scale(200).translate([500, 300]);
+const projection = geoEqualEarth().scale(180).translate([400, 250]);
 
 export default function FlightMap({ flightData }: FlightMapProps) {
   // Calculate statistics
@@ -129,10 +129,67 @@ export default function FlightMap({ flightData }: FlightMapProps) {
         <p className="text-white/80 text-lg">A journey across continents</p>
       </div>
 
-      {/* Main Content - Two Column Layout */}
-      <div className="flex w-full max-w-[1400px] gap-8 px-8">
-        {/* Left Column - Stats and Button */}
-        <div className="flex flex-col gap-6 w-[300px]">
+      {/* Main Content - Responsive Layout */}
+      <div className="flex flex-col lg:flex-row w-full max-w-[1400px] gap-8 px-4 lg:px-8">
+        {/* Map - Moves to top on mobile */}
+        <div className="flex-1 order-1 lg:order-2 overflow-x-auto">
+          <div className="min-w-[380px]">
+            <ComposableMap
+              projection={projection as unknown as ProjectionFunction}
+              style={{
+                width: "100%",
+                height: "auto",
+                aspectRatio: "1.6 / 1",
+              }}
+            >
+              {/* SVG Filters */}
+              <defs>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+                  <feMerge>
+                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+
+              {/* BASE MAP */}
+              <Geographies geography="https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json">
+                {({ geographies }) =>
+                  geographies.map((geo) => (
+                    <Geography
+                      key={geo.rsmKey}
+                      geography={geo}
+                      fill="#8B0D2B"
+                      stroke="#C41E3A"
+                      strokeWidth={0.5}
+                      style={{
+                        default: { outline: "none" },
+                        hover: { outline: "none" },
+                        pressed: { outline: "none" },
+                      }}
+                    />
+                  ))
+                }
+              </Geographies>
+
+              {/* FLIGHT PATHS */}
+              <AnimatePresence mode="wait">
+                {flightData.map((fd, i) => (
+                  <FlightPath
+                    key={i}
+                    route={fd.route}
+                    projection={projection}
+                    delay={i * 0.5}
+                  />
+                ))}
+              </AnimatePresence>
+            </ComposableMap>
+          </div>
+        </div>
+
+        {/* Stats and Button - Moves below map on mobile */}
+        <div className="flex flex-col gap-6 w-full lg:w-[300px] order-2 lg:order-1">
           {/* Statistics Grid */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
@@ -186,61 +243,6 @@ export default function FlightMap({ flightData }: FlightMapProps) {
           >
             Add Your Trip
           </Link>
-        </div>
-
-        {/* Right Column - Map */}
-        <div className="flex-1">
-          <ComposableMap
-            projection={projection as unknown as ProjectionFunction}
-            style={{
-              width: "100%",
-              height: "auto",
-              aspectRatio: "1.6 / 1",
-            }}
-          >
-            {/* SVG Filters */}
-            <defs>
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-                <feMerge>
-                  <feMergeNode in="coloredBlur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-
-            {/* BASE MAP */}
-            <Geographies geography="https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json">
-              {({ geographies }) =>
-                geographies.map((geo) => (
-                  <Geography
-                    key={geo.rsmKey}
-                    geography={geo}
-                    fill="#8B0D2B"
-                    stroke="#C41E3A"
-                    strokeWidth={0.5}
-                    style={{
-                      default: { outline: "none" },
-                      hover: { outline: "none" },
-                      pressed: { outline: "none" },
-                    }}
-                  />
-                ))
-              }
-            </Geographies>
-
-            {/* FLIGHT PATHS */}
-            <AnimatePresence mode="wait">
-              {flightData.map((fd, i) => (
-                <FlightPath
-                  key={i}
-                  route={fd.route}
-                  projection={projection}
-                  delay={i * 0.5}
-                />
-              ))}
-            </AnimatePresence>
-          </ComposableMap>
         </div>
       </div>
     </div>
