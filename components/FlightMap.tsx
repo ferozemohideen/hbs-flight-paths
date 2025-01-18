@@ -104,6 +104,12 @@ function calculateAverageCitiesPerTrip(routes: FlightDatum[]) {
 
 const projection = geoEqualEarth().scale(180).translate([400, 250]);
 
+const BOSTON_LOCATION = {
+  name: "Boston",
+  lat: 42.3601,
+  lon: -71.0589,
+};
+
 export default function FlightMap({ flightData }: FlightMapProps) {
   // Calculate statistics
   const allCities = flightData.flatMap((fd) => fd.route);
@@ -129,6 +135,12 @@ export default function FlightMap({ flightData }: FlightMapProps) {
   const averageFlightDistance =
     totalFlights > 0 ? Math.round(totalDistance / totalFlights) : 0;
   const avgCitiesPerTrip = calculateAverageCitiesPerTrip(flightData);
+
+  // Get Boston's projected coordinates
+  const [bostonX, bostonY] = projection([
+    BOSTON_LOCATION.lon,
+    BOSTON_LOCATION.lat,
+  ]) || [0, 0];
 
   return (
     <div className="flex flex-col items-center py-12">
@@ -183,6 +195,16 @@ export default function FlightMap({ flightData }: FlightMapProps) {
                   ))
                 }
               </Geographies>
+
+              {/* Add Boston Star */}
+              <path
+                d="M 0,-6 L 1.8,-1.8 L 6,0 L 1.8,1.8 L 0,6 L -1.8,1.8 L -6,0 L -1.8,-1.8 Z"
+                fill="#ff3333"
+                stroke="white"
+                strokeWidth="1"
+                transform={`translate(${bostonX}, ${bostonY})`}
+                filter="url(#glow)"
+              />
 
               {/* FLIGHT PATHS */}
               <AnimatePresence mode="wait">
