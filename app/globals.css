@@ -6,6 +6,12 @@ body {
   background-color: #a41034; /* HBS Crimson */
 }
 
+@layer base {
+  body {
+    background-color: #a41034 !important; /* HBS Crimson */
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

@@ -64,7 +64,11 @@ export default function FlightPath({
       {pathSegments.map((segment, index) => (
         <motion.g key={index}>
           <path
-            ref={(el) => (pathRefs.current[index] = el)}
+            ref={(el) => {
+              if (el) {
+                pathRefs.current[index] = el;
+              }
+            }}
             d={segment.d}
             stroke="white"
             strokeWidth="2"
