@@ -93,6 +93,15 @@ function calculateTotalFlights(routes: FlightDatum[]) {
   return routes.reduce((total, route) => total + route.route.length - 1, 0);
 }
 
+function calculateAverageCitiesPerTrip(routes: FlightDatum[]) {
+  if (routes.length === 0) return 0;
+  const totalCities = routes.reduce(
+    (total, route) => total + route.route.length,
+    0
+  );
+  return Math.round(totalCities / routes.length);
+}
+
 const projection = geoEqualEarth().scale(180).translate([400, 250]);
 
 export default function FlightMap({ flightData }: FlightMapProps) {
@@ -119,6 +128,7 @@ export default function FlightMap({ flightData }: FlightMapProps) {
   const totalFlights = calculateTotalFlights(flightData);
   const averageFlightDistance =
     totalFlights > 0 ? Math.round(totalDistance / totalFlights) : 0;
+  const avgCitiesPerTrip = calculateAverageCitiesPerTrip(flightData);
 
   return (
     <div className="flex flex-col items-center py-12">
@@ -227,9 +237,9 @@ export default function FlightMap({ flightData }: FlightMapProps) {
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
               <div className="text-2xl font-bold text-white mb-1">
-                {continentsVisited}
+                {avgCitiesPerTrip > 0 ? avgCitiesPerTrip : "-"}
               </div>
-              <div className="text-white/80 text-sm">Continents</div>
+              <div className="text-white/80 text-sm">Avg cities visited</div>
             </div>
             <div className="col-span-2 bg-white/10 backdrop-blur-sm rounded-lg p-4">
               <div className="text-2xl font-bold text-white mb-1">
