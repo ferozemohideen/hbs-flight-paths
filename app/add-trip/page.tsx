@@ -28,6 +28,7 @@ interface Location {
 export default function AddTrip() {
   const router = useRouter();
   const [locations, setLocations] = useState<Location[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -68,6 +69,7 @@ export default function AddTrip() {
   const handleSubmit = async (e: React.FormEvent) => {
     console.log("Form submission started");
     e.preventDefault();
+    setIsSubmitting(true);
 
     if (locations.length < 1) {
       alert("Please add at least one destination");
@@ -102,6 +104,8 @@ export default function AddTrip() {
           error instanceof Error ? error.message : "Unknown error"
         }`
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -145,11 +149,19 @@ export default function AddTrip() {
 
           <button
             type="submit"
-            className="w-full bg-white text-[#a41034] py-2 px-4 rounded-md font-medium hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={locations.length < 1}
-            onClick={() => console.log("Button clicked", locations.length)}
+            className="w-full bg-white text-[#a41034] py-2 px-4 rounded-md font-medium hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed relative"
+            disabled={locations.length < 1 || isSubmitting}
           >
-            Save Trip
+            {isSubmitting ? (
+              <>
+                <span className="opacity-0">Save Trip</span>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="h-5 w-5 border-2 border-[#a41034] border-t-transparent rounded-full animate-spin" />
+                </div>
+              </>
+            ) : (
+              "Save Trip"
+            )}
           </button>
         </form>
       </div>
